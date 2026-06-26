@@ -1,0 +1,2 @@
+from sentence_transformers import SentenceTransformer
+sentence_transformer_model=SentenceTransformer("all-MiniLM-L6-v2")

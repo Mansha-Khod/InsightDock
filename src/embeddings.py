@@ -1,8 +1,6 @@
-from sentence_transformers import SentenceTransformer
 import json
 import numpy as np
-
-model=SentenceTransformer("all-MiniLM-L6-v2")
+from model_loader import sentence_transformer_model
 
 def generate_embeddings(input_json, output_npy):
     with open(input_json,"r",encoding="utf-8") as f:
@@ -10,7 +8,7 @@ def generate_embeddings(input_json, output_npy):
         chunks=json.load(f)
         for chunk in chunks:
             texts.append(chunk['text'])
-
+        model=sentence_transformer_model
         embeddings=model.encode(texts,convert_to_numpy=True)
         
         print(type(embeddings))
