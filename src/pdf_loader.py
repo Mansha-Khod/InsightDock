@@ -16,6 +16,8 @@ def extract_text(pdf_path,txt_path):
                 if text:
                     f.write(text+"\n\n")
             f.write("\n")
+    doc.close()
+    return txt_path
 
 extract_text("C:/Users/hp/Desktop/Projects/financial-report-analyzer/data/reports/apple_2024.pdf","C:/Users/hp/Desktop/Projects/financial-report-analyzer/data/processed/apple_2024.txt")
     
