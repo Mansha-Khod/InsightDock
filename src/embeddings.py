@@ -1,0 +1,21 @@
+from sentence_transformers import SentenceTransformer
+import json
+import numpy as np
+
+model=SentenceTransformer("all-MiniLM-L6-v2")
+
+def generate_embeddings(input_json, output_npy):
+    with open(input_json,"r",encoding="utf-8") as f:
+        texts=[]
+        chunks=json.load(f)
+        for chunk in chunks:
+            texts.append(chunk['text'])
+
+        embeddings=model.encode(texts,convert_to_numpy=True)
+        
+        print(type(embeddings))
+        print(embeddings.shape)
+    np.save(output_npy,embeddings)
+    print("Embeddings saved successfully!")
+    print(f"Shape: {embeddings.shape}")
+generate_embeddings("C:/Users/hp/Desktop/Projects/financial-report-analyzer/data/processed/apple_2024_chunks.json","C:/Users/hp/Desktop/Projects/financial-report-analyzer/data/embeddings/apple_2024_embeddings.npy")
