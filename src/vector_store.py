@@ -20,7 +20,7 @@ def build_index(embeddings_path,index_path):
 
     faiss.write_index(
         index,
-        MODEL_DIR/index_path
+        MODELS_DIR/index_path
     )
 
     print("Index created successfully!")
@@ -31,7 +31,7 @@ def search(query, k,index_path,chunk_json_path):
 
     
     index = faiss.read_index(
-        MODEL_DIR/index_path
+        MODELS_DIR/index_path
     )
 
     
@@ -61,5 +61,8 @@ def search(query, k,index_path,chunk_json_path):
         })
     return results
 
-
+def load_all_chunks(chunk_json_path):
+    with open(PROCESSED_DIR/chunk_json_path,"r",encoding="utf-8") as f:
+        chunks=json.load(f)
+        return chunks
 

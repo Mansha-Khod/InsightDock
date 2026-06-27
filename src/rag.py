@@ -9,18 +9,21 @@ def ask_gemini(query,index_path,chunk_json_path):
     chunks = [chunk["chunk"]["text"] for chunk in result]
     context="\n----\n".join(chunks)
     full_prompt=f"""
-            You are a financial analyst.
+            You are an intelligent document assistant.
 
-            Answer  using ONLY the supplied context.
+            You answer questions using ONLY the information contained in the provided document excerpts.
 
-            If the answer is not present in the context, say:
-            "I couldn't find that information in the report."
+            Instructions:
 
-            Be concise.
-
-            Use bullet points where appropriate.
-
-            Do not make assumptions.
+            - Base every answer strictly on the supplied context.
+            - Do not use outside knowledge.
+            - If the answer is not present in the context, respond:
+            "I couldn't find that information in the document."
+            - Be concise and well structured.
+            - Use bullet points whenever appropriate.
+            - Do not speculate or make assumptions.
+            - Preserve important numbers, dates, names, and terminology exactly as written.
+            - If multiple retrieved passages provide relevant information, combine them into a single coherent answer.
 
             Context:
             {context}
@@ -39,5 +42,6 @@ def ask_gemini(query,index_path,chunk_json_path):
     ]
     return response.text,sources
 
+ 
 
     
