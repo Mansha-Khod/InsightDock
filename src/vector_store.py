@@ -1,7 +1,7 @@
 import faiss
 import numpy as np
 import json
-from model_loader import sentence_transformer_model
+from src.model_loader import sentence_transformer_model
 
 
 def build_index():

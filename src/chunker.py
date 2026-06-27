@@ -44,7 +44,7 @@ for page_num,sentance_text in chunk:
     
     current_bucket.append(sentance_text)
     current_word_count+=words
-    chunk_end_page = page_num
+    
     
 
 if current_bucket:

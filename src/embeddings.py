@@ -1,6 +1,6 @@
 import json
 import numpy as np
-from model_loader import sentence_transformer_model
+from src.model_loader import sentence_transformer_model
 
 def generate_embeddings(input_json, output_npy):
     with open(input_json,"r",encoding="utf-8") as f:
