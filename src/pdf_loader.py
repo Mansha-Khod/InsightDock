@@ -1,4 +1,6 @@
 import pymupdf
+from config.config import REPORTS_DIR
+from config.config import PROCESSED_DIR
 
 def extract_text(pdf_path,txt_path):
     doc=pymupdf.open(pdf_path)
@@ -19,5 +21,4 @@ def extract_text(pdf_path,txt_path):
     doc.close()
     return txt_path
 
-extract_text("C:/Users/hp/Desktop/Projects/financial-report-analyzer/data/reports/apple_2024.pdf","C:/Users/hp/Desktop/Projects/financial-report-analyzer/data/processed/apple_2024.txt")
     

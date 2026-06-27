@@ -4,8 +4,8 @@ from config.config import GEMINI_API_KEY
 
 client=genai.Client(api_key=GEMINI_API_KEY)
 
-def ask_gemini(query):
-    result=search(query,k=3)
+def ask_gemini(query,index_path,chunk_json_path):
+    result=search(query,index_path,chunk_json_path,k=3)
     chunks = [chunk["chunk"]["text"] for chunk in result]
     context="\n----\n".join(chunks)
     full_prompt=f"""
