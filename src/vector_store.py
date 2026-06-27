@@ -48,22 +48,16 @@ def search(query, k):
 
         chunks = json.load(f)
 
-    print(f"\nResults for: {query}\n")
+    results=[]
 
     for rank, chunk_index in enumerate(indices[0], start=1):
 
         chunk = chunks[chunk_index]
-
-        print("=" * 70)
-        print(f"Match {rank}")
-        print(f"Chunk ID : {chunk['chunk_id']}")
-        print(f"Pages    : {chunk['start_page']} - {chunk['end_page']}")
-        print(f"Distance : {distances[0][rank-1]:.4f}")
-        print("-" * 70)
-        print(chunk["text"])
+        results.append({
+            "chunk": chunk,
+            "distance": float(distances[0][rank-1])
+        })
+    return results
 
 
 
-if __name__ == "__main__":
-
-    build_index()
