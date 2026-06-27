@@ -2,7 +2,7 @@ import re
 import json
 from config.config import PROCESSED_DIR
 
-def create_chunks(txt_path,chunk_json_path):
+def text_to_chunks(txt_path,chunk_json_path):
     try:
         chunk = []
         current_page = 0
@@ -28,7 +28,7 @@ def create_chunks(txt_path,chunk_json_path):
 
         for page_num, sentence_text in chunk:
             words = len(sentence_text.split())
-            if current_word_count + words > 250:
+            if current_word_count + words > 400:
                 chunk_id += 1
                 final_chunks.append({
                     "chunk_id": chunk_id,

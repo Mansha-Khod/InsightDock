@@ -37,9 +37,16 @@ def ask_gemini(query,index_path,chunk_json_path):
         model="gemini-2.5-flash",
         contents=full_prompt
     )
-    sources=[
-        f"Pages {item["chunk"]['start_page']}-{item['chunk']['end_page'] }"for item in result
-    ]
+    sources = []
+
+    for item in result:
+        sources.append(
+            {
+                "pages": f"{item['chunk']['start_page']}-{item['chunk']['end_page']}",
+                "distance": round(item["distance"], 4),
+                "preview": item["chunk"]["text"][:250] + "..."
+            }
+        )
     return response.text,sources
 
  
