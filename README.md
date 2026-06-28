@@ -1,6 +1,6 @@
 # Intelligent Document Assistant
 
-An end-to-end Retrieval-Augmented Generation (RAG) application that allows users to upload PDF documents, build semantic vector indexes, and interact with them using natural language.
+An end-to-end Retrieval-Augmented Generation (RAG) application that allows usersto upload PDF documents, build semantic vector indexes, and interact with them using natural language.
 
 The application extracts document text, generates embeddings, builds a FAISS vector database, and uses Google's Gemini model to provide grounded answers with source attribution. It also generates executive summaries and key insights for the entire document.
 
@@ -59,7 +59,7 @@ Semantic Search
       ▼
 Gemini RAG Response
 ```
-
+<img width="1536" height="1024" alt="nlp" src="https://github.com/user-attachments/assets/af371f1e-021c-4bff-b9b4-c2e4ad5705b3" />
 ---
 
 ## Repository Structure
