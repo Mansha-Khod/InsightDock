@@ -19,9 +19,9 @@ def build_index(embeddings_path,index_path):
     index.add(embeddings)
 
     faiss.write_index(
-        index,
-        MODELS_DIR/index_path
-    )
+    index,
+    str(MODELS_DIR / index_path)  
+)
 
     print("Index created successfully!")
     print(f"Total vectors: {index.ntotal}")

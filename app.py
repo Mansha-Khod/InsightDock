@@ -47,10 +47,7 @@ def get_paths(pdf_filename: str) -> dict:
 
 
 def compute_doc_stats(paths: dict) -> dict:
-    """
-    Compute document and chunk statistics from processed files.
-    Returns a dict consumed by the stats display and sidebar.
-    """
+    """Compute document and chunk statistics from processed files."""
     stats = {
         "pages": "—", "words": "—", "chunks": "—",
         "avg_chunk_words": "—", "largest_chunk": "—",
@@ -65,9 +62,10 @@ def compute_doc_stats(paths: dict) -> dict:
     except Exception:
         pass
 
-    # Page count heuristic: count form-feed characters in extracted text
+    
     try:
-        stats["pages"] = max(1, text.count("\f") + 1)
+        page_markers = text.count("== PAGE")
+        stats["pages"] = max(1, page_markers)
     except Exception:
         pass
 
@@ -76,10 +74,10 @@ def compute_doc_stats(paths: dict) -> dict:
         with open(paths["chunks"], "r", encoding="utf-8") as f:
             chunks = json.load(f)
         chunk_word_counts = [len(str(c).split()) for c in chunks]
-        stats["chunks"]          = len(chunks)
+        stats["chunks"] = len(chunks)
         stats["avg_chunk_words"] = f"{int(np.mean(chunk_word_counts)):,}"
-        stats["largest_chunk"]   = f"{max(chunk_word_counts):,}"
-        stats["smallest_chunk"]  = f"{min(chunk_word_counts):,}"
+        stats["largest_chunk"] = f"{max(chunk_word_counts):,}"
+        stats["smallest_chunk"] = f"{min(chunk_word_counts):,}"
     except Exception:
         pass
 
