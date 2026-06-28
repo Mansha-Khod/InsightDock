@@ -1,0 +1,9 @@
+streamlit
+google-genai
+sentence-transformers
+faiss-cpu
+numpy
+PyMuPDF
+python-dotenv
+torch
+transformers
