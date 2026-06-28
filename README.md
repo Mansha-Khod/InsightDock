@@ -1,8 +1,11 @@
-# InsightDock
-
+# InsightDock  
 An end-to-end Retrieval-Augmented Generation (RAG) application that allows usersto upload PDF documents, build semantic vector indexes, and interact with them using natural language.
 
 The application extracts document text, generates embeddings, builds a FAISS vector database, and uses Google's Gemini model to provide grounded answers with source attribution. It also generates executive summaries and key insights for the entire document.
+
+### Live Demo
+
+**Application:** https://insightdock.streamlit.app/
 
 ---
 
