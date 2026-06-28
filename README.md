@@ -1,4 +1,4 @@
-# InsightForge
+# InsightDock
 
 An end-to-end Retrieval-Augmented Generation (RAG) application that allows usersto upload PDF documents, build semantic vector indexes, and interact with them using natural language.
 
