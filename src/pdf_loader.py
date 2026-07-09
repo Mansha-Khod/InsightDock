@@ -21,4 +21,12 @@ def extract_text(pdf_path,txt_path):
     doc.close()
     return txt_path
 
+def load_document(txt_path):
+    with open(
+        PROCESSED_DIR / txt_path,
+        "r",
+        encoding="utf-8"
+    ) as f:
+        return f.read()
+
     
