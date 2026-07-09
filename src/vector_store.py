@@ -31,8 +31,8 @@ def search(query,index_path,chunk_json_path,k=3):
 
     
     index = faiss.read_index(
-        MODELS_DIR/index_path
-    )
+    str(MODELS_DIR / index_path)
+)
 
     
     query_embedding = sentence_transformer_model.encode(
