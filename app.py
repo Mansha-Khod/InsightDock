@@ -418,8 +418,8 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
         if summarize_btn:
             with st.spinner("Generating executive summary..."):
                 try:
-                    summary = generate_executive_summary(
-                        chunk_json_path=paths["chunks"].name
+                    generate_executive_summary(
+                      txt_path=paths["txt"].name
                     )
                     st.session_state["summary"] = summary
                 except Exception as exc:
