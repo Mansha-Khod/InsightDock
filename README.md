@@ -146,4 +146,4 @@ streamlit run app.py
 
 ## License
 
-This project is intended for educational and portfolio purposes.
+Distributed under the MIT License. See `LICENSE` for more details.
