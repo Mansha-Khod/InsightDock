@@ -27,7 +27,7 @@ def build_index(embeddings_path,index_path):
     print(f"Total vectors: {index.ntotal}")
 
 
-def search(query, k,index_path,chunk_json_path):
+def search(query,index_path,chunk_json_path,k=3):
 
     
     index = faiss.read_index(
