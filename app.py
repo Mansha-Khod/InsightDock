@@ -392,15 +392,13 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
                                     conf       = confidence_label(dist)
                                     label      = (
                                         f"Source {i} — "
-                                        f"Similarity: {similarity}%  |  "
                                         f"{conf}  |  "
                                         f"Pages: {src.get('pages', '—')}"
                                     )
                                     with st.expander(label, expanded=(i == 1)):
-                                        s1, s2, s3 = st.columns(3)
-                                        s1.metric("Similarity",  f"{similarity}%")
-                                        s2.metric("Confidence",  conf)
-                                        s3.metric("Pages",       src.get("pages", "—"))
+                                        s1, s2 = st.columns(2)
+                                        s1.metric("Confidence",  conf)
+                                        s2.metric("Pages",       src.get("pages", "—"))
                                         if src.get("preview"):
                                             st.markdown(f"> {src['preview']}")
                                 else:
