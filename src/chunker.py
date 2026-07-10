@@ -47,6 +47,7 @@ def text_to_chunks(txt_path,chunk_json_path):
 
             current_bucket.append(sentence_text)
             current_word_count += words
+            chunk_end_page = page_num
 
         if current_bucket:
             chunk_id += 1
