@@ -73,7 +73,7 @@ def compute_doc_stats(paths: dict) -> dict:
     try:
         with open(paths["chunks"], "r", encoding="utf-8") as f:
             chunks = json.load(f)
-        chunk_word_counts = [len(str(c).split()) for c in chunks]
+        chunk_word_counts = [len(chunk["text"].split()) for chunk in chunks]
         stats["chunks"] = len(chunks)
         stats["avg_chunk_words"] = f"{int(np.mean(chunk_word_counts)):,}"
         stats["largest_chunk"] = f"{max(chunk_word_counts):,}"
@@ -99,9 +99,9 @@ def faiss_distance_to_similarity(distance: float) -> int:
 
 def confidence_label(distance: float) -> str:
     """Return a human-readable confidence label based on FAISS distance."""
-    if distance < 0.2:
+    if distance <= 0.4:
         return "High confidence"
-    elif distance < 0.5:
+    elif distance <= 0.8:
         return "Medium confidence"
     else:
         return "Low confidence"
@@ -268,7 +268,12 @@ if process_btn and uploaded_file is not None:
         st.session_state[key] = None
     st.session_state["question_history"] = []
 
-    if paths["index"].exists():
+    if (
+            paths["index"].exists()
+            and paths["chunks"].exists()
+            and paths["embeddings"].exists()
+            and paths["txt"].exists()
+        ):
         st.success(f"{uploaded_file.name} was already processed. Loading from cache.")
         st.session_state["processed"]       = True
         st.session_state["paths"]           = paths
@@ -335,8 +340,7 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
             else:
                 # Save to history
                 history = st.session_state.get("question_history", [])
-                if question not in history:
-                    history.append(question)
+                history.append(question)
                 st.session_state["question_history"] = history
 
                 with st.spinner("Searching the document and generating an answer..."):
@@ -418,9 +422,10 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
         if summarize_btn:
             with st.spinner("Generating executive summary..."):
                 try:
-                    generate_executive_summary(
-                      txt_path=paths["txt"].name
+                    summary = generate_executive_summary(
+                        txt_path=paths["txt"].name
                     )
+        
                     st.session_state["summary"] = summary
                 except Exception as exc:
                     st.error(f"Could not generate summary: {exc}")
