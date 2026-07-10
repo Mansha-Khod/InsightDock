@@ -1,7 +1,9 @@
 # InsightDock  
-An end-to-end Retrieval-Augmented Generation (RAG) application that allows usersto upload PDF documents, build semantic vector indexes, and interact with them using natural language.
+![Python](https://img.shields.io/badge/Python-3.11-blue) ![Streamlit](https://img.shields.io/badge/Streamlit-App-red) ![NLP](https://img.shields.io/badge/NLP-RAG-success) ![License](https://img.shields.io/badge/License-MIT-green)
 
-The application extracts document text, generates embeddings, builds a FAISS vector database, and uses Google's Gemini model to provide grounded answers with source attribution. It also generates executive summaries and key insights for the entire document.
+An end-to-end Retrieval-Augmented Generation (RAG) application that allows users to upload PDF documents, build semantic vector indexes, and interact with them using natural language.
+
+The application combines Natural Language Processing (NLP), semantic search, vector embeddings, and Retrieval-Augmented Generation (RAG) to extract information from PDF documents and answer questions with grounded responses.
 
 ### Live Demo
 
@@ -26,12 +28,24 @@ The application extracts document text, generates embeddings, builds a FAISS vec
 
 ---
 
+## Project Highlights
+
+- Built an end-to-end NLP + RAG pipeline for PDF question answering.
+- Uses Sentence Transformers to generate semantic embeddings.
+- Stores vector representations using FAISS for efficient similarity search.
+- Generates grounded answers with page-level source attribution.
+- Includes automated executive summaries and document key insights.
+- Interactive Streamlit interface with document statistics and cached processing.
+
+---
+
 ## Tech Stack
 
 * Python
 * Streamlit
 * Google Gemini 2.5 Flash
 * Sentence Transformers
+* Hugging Face Transformers
 * FAISS
 * PyMuPDF
 * NumPy
@@ -39,7 +53,7 @@ The application extracts document text, generates embeddings, builds a FAISS vec
 
 ---
 
-## Project Pipeline
+## System Architecture
 
 ```
 PDF Upload
@@ -96,8 +110,8 @@ requirements.txt
 Clone the repository
 
 ```bash
-git clone <repository-url>
-cd intelligent-document-assistant
+git clone https://github.com/Mansha-Khod/InsightDock.git
+cd InsightDock
 ```
 
 Install dependencies
@@ -135,15 +149,22 @@ streamlit run app.py
 
 ## Future Improvements
 
-* OCR support for scanned PDFs
-* Multi-document search
-* Citation highlighting
-* Conversation memory
-* Metadata filtering
-* Docker deployment
+- OCR support for scanned PDFs
+- Hybrid search (keyword + semantic retrieval)
+- Multi-document knowledge base
+- Citation highlighting inside documents
+- Conversational memory
+- Metadata filtering
+- Local LLM support (Llama, Mistral)
+- Docker deployment
 
 ---
 
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more details.
+
+ **Note**
+
+The live demo uses the Gemini API. On the free tier, executive summaries and key insights consume API quota and may become temporarily unavailable after the daily request limit is reached. In production, these features can be powered by local summarization models (such as BART or T5) or alternative LLM providers.
+
