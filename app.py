@@ -90,12 +90,6 @@ def compute_doc_stats(paths: dict) -> dict:
     return stats
 
 
-def faiss_distance_to_similarity(distance: float) -> int:
-    """Convert a FAISS L2 distance to an approximate similarity percentage."""
-    similarity = max(0.0, 1.0 - distance)
-    return int(round(similarity * 100))
-
-
 def confidence_label(distance: float) -> str:
     """Return a human-readable confidence label based on FAISS distance."""
     if distance <= 0.4:
