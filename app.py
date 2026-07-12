@@ -62,7 +62,6 @@ def compute_doc_stats(paths: dict) -> dict:
     except Exception:
         pass
 
-    
     try:
         page_markers = text.count("== PAGE")
         stats["pages"] = max(1, page_markers)
@@ -269,11 +268,11 @@ if process_btn and uploaded_file is not None:
     st.session_state["question_history"] = []
 
     if (
-            paths["index"].exists()
-            and paths["chunks"].exists()
-            and paths["embeddings"].exists()
-            and paths["txt"].exists()
-        ):
+        paths["index"].exists()
+        and paths["chunks"].exists()
+        and paths["embeddings"].exists()
+        and paths["txt"].exists()
+    ):
         st.success(f"{uploaded_file.name} was already processed. Loading from cache.")
         st.session_state["processed"]       = True
         st.session_state["paths"]           = paths
@@ -299,21 +298,23 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
         st.markdown("**Document Statistics**")
 
         col1, col2, col3, col4, col5, col6 = st.columns(6)
-        col1.metric("Pages",               stats.get("pages", "—"))
-        col2.metric("Words",               stats.get("words", "—"))
-        col3.metric("Chunks",              stats.get("chunks", "—"))
-        col4.metric("Avg Chunk Size",      f"{stats.get('avg_chunk_words', '—')} words")
-        col5.metric("Embedding Dim",       stats.get("embedding_dim", "—"))
-        col6.metric("Processing Time",
-                    f"{proc_time}s" if proc_time not in ("—", "cached") else proc_time)
+        col1.metric("Pages",          stats.get("pages", "—"))
+        col2.metric("Words",          stats.get("words", "—"))
+        col3.metric("Chunks",         stats.get("chunks", "—"))
+        col4.metric("Avg Chunk Size", f"{stats.get('avg_chunk_words', '—')} words")
+        col5.metric("Embedding Dim",  stats.get("embedding_dim", "—"))
+        col6.metric(
+            "Processing Time",
+            f"{proc_time}s" if proc_time not in ("—", "cached") else proc_time,
+        )
 
     # ── Chunk Statistics card ────────────────────────────────────────────────
     with st.container(border=True):
         st.markdown("**Chunk Statistics**")
         c1, c2, c3 = st.columns(3)
-        c1.metric("Largest Chunk",   f"{stats.get('largest_chunk', '—')} words")
-        c2.metric("Smallest Chunk",  f"{stats.get('smallest_chunk', '—')} words")
-        c3.metric("Average Chunk",   f"{stats.get('avg_chunk_words', '—')} words")
+        c1.metric("Largest Chunk",  f"{stats.get('largest_chunk', '—')} words")
+        c2.metric("Smallest Chunk", f"{stats.get('smallest_chunk', '—')} words")
+        c3.metric("Average Chunk",  f"{stats.get('avg_chunk_words', '—')} words")
 
     st.divider()
 
@@ -397,8 +398,8 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
                                     )
                                     with st.expander(label, expanded=(i == 1)):
                                         s1, s2 = st.columns(2)
-                                        s1.metric("Confidence",  conf)
-                                        s2.metric("Pages",       src.get("pages", "—"))
+                                        s1.metric("Confidence", conf)
+                                        s2.metric("Pages",      src.get("pages", "—"))
                                         if src.get("preview"):
                                             st.markdown(f"> {src['preview']}")
                                 else:
@@ -407,16 +408,16 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
 
                     except Exception as exc:
                         error = str(exc)
-                    
+
                         if "RESOURCE_EXHAUSTED" in error:
                             st.warning(
-                                    """
-                        Gemini API quota exceeded.
-                        
-                        The free Gemini tier has reached its request limit.
-                        
-                        Please wait a minute and try again, or use another API key.
-                                    """
+                                """
+                                Gemini API quota exceeded.
+
+                                The free Gemini tier has reached its request limit.
+
+                                Please wait a minute and try again, or use another API key.
+                                """
                             )
                         else:
                             st.error(f"Could not generate an answer: {exc}")
@@ -436,20 +437,20 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
                     summary = generate_executive_summary(
                         txt_path=paths["txt"].name
                     )
-        
+
                     st.session_state["summary"] = summary
                 except Exception as exc:
                     error = str(exc)
-                
+
                     if "RESOURCE_EXHAUSTED" in error:
                         st.warning(
-                                    """
-                        Gemini API quota exceeded.
-                        
-                        The free Gemini tier has reached its request limit.
-                        
-                        Please wait a minute and try again, or use another API key.
-                                    """
+                            """
+                            Gemini API quota exceeded.
+
+                            The free Gemini tier has reached its request limit.
+
+                            Please wait a minute and try again, or use another API key.
+                            """
                         )
                     else:
                         st.error(f"Could not generate summary: {exc}")
@@ -483,19 +484,19 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
                     st.session_state["key_points"] = key_points
                 except Exception as exc:
                     error = str(exc)
-                
+
                     if "RESOURCE_EXHAUSTED" in error:
                         st.warning(
-                                        """
+                            """
                             Gemini API quota exceeded.
-                            
+
                             The free Gemini tier has a very small daily request limit.
-                            
+
                             Please wait a minute and try again, or use another API key.
-                                        """
-                                    )
-                     else:
-                         st.error(f"Could not extract key insights: {exc}")
+                            """
+                        )
+                    else:
+                        st.error(f"Could not extract key insights: {exc}")
 
         if st.session_state.get("key_points"):
             st.markdown("### Key Insights")
