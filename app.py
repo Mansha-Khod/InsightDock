@@ -229,7 +229,7 @@ with st.sidebar:
     if history:
         st.divider()
         st.markdown("**Question History**")
-        for q in reversed(history[-10:]):          # show latest 10, newest first
+        for q in reversed(history[-10:]):          
             st.markdown(f"- {q}")
 
     st.divider()
@@ -382,18 +382,10 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
                             st.markdown("### Retrieved Sources")
                             for i, src in enumerate(sources, 1):
                                 if isinstance(src, dict):
-                                    dist       = src.get("distance", 1.0)
-                                    similarity = faiss_distance_to_similarity(dist)
-                                    conf       = confidence_label(dist)
-                                    label      = (
-                                        f"Source {i} — "
-                                        f"{conf}  |  "
-                                        f"Pages: {src.get('pages', '—')}"
-                                    )
+                                    label      = label = f"Source {i} — Pages: {src.get('pages', '—')}"
+                                    
                                     with st.expander(label, expanded=(i == 1)):
-                                        s1, s2 = st.columns(2)
-                                        s1.metric("Confidence", conf)
-                                        s2.metric("Pages",      src.get("pages", "—"))
+                                        st.metric("Pages", src.get("pages", "—"))
                                         if src.get("preview"):
                                             st.markdown(f"> {src['preview']}")
                                 else:
