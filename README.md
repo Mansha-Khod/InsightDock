@@ -10,7 +10,13 @@ The application combines Natural Language Processing (NLP), semantic search, vec
 **Application:** https://insightdock.streamlit.app/
 
 ---
+## Demo
 
+ Watch the application in action:
+<video src="https://github.com/user-attachments/assets/63a7e249-d4f9-4c9a-b85c-fac3044489a2" width="100%" controls autoplay loop muted playsinline></video>
+
+
+---
 ## Features
 
 * Upload any PDF document
@@ -25,6 +31,35 @@ The application combines Natural Language Processing (NLP), semantic search, vec
 * Interactive Streamlit interface
 * Cached document processing
 * Document statistics dashboard
+
+---
+---
+## Screenshots
+
+### Dashboard
+![dashboard](assets/dashboard.png)
+
+### Document Processing
+
+![Upload](assets/dashboard_document_uploaded.png)
+
+---
+
+### Question Answering
+
+![QA](assets/question.jpeg)
+
+---
+
+### Executive Summary
+
+![Summary](assets/executive_summary.jpeg)
+
+---
+
+### Key Insights
+
+![Insights](assets/key_insights.jpeg)
 
 ---
 
