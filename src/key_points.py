@@ -1,68 +1,52 @@
-from config.config import PROCESSED_DIR
-from src.vector_store import load_all_chunks
 from google import genai
+
 from config.config import GEMINI_API_KEY
+from src.pdf_loader import load_document
 
-client=genai.Client(api_key=GEMINI_API_KEY)
+client = genai.Client(api_key=GEMINI_API_KEY)
 
-def generate_key_points(chunk_json_path):
-    chunks=load_all_chunks(chunk_json_path)
-    batch_key_points = []
-    for a in range(0,len(chunks),20):
-        chunk_20_summary=[]
-        for b in range (a,min(a + 20, len(chunks)),1):
-            chunk_20_summary.append(chunks[b]['text'])
-        prompt=f"""You are an expert document analyst.
 
-                    Extract the most important points from the provided document excerpts.
+def generate_key_points(txt_path):
+    """
+    Generate key insights from the complete document.
+    Uses a single Gemini request instead of one request per chunk.
+    """
 
-                    Requirements:
-                    - Return between 10 and 15 bullet points.
-                    - Each bullet should contain one important fact.
-                    - Preserve important names, dates, monetary values, percentages and statistics.
-                    - Keep each bullet under two sentences.
-                    - Do not repeat information.
-                    - Order the bullets by importance.
+    document = load_document(txt_path)
 
-                    Rules:
-                    - Use ONLY the supplied document.
-                    - Do NOT infer missing information.
-                    - Do NOT add explanations beyond what is stated.
-                    - Avoid repeating information across sections.
+    prompt = f"""
+You are an expert document analyst.
 
-                    Document excerpts :{"\n\n-----------------------------\n\n".join(chunk_20_summary)}"""
-        response=client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt
-        )
-        batch_key_points.append(response.text)
-        
+Extract the most important points from the document.
 
-    final_prompt=f"""You are an expert document analyst.
+Requirements
 
-                    Extract the most important points from the provided document excerpts.
+• Return 10–15 bullet points.
 
-                    Requirements:
-                    - Return between 10 and 15 bullet points.
-                    - Each bullet should contain one important fact.
-                    - Preserve important names, dates, monetary values, percentages and statistics.
-                    - Keep each bullet under two sentences.
-                    - Do not repeat information.
-                    - Order the bullets by importance.
+• Each bullet should contain one important fact.
 
-                    Rules:
-                    - Use ONLY the supplied document.
-                    - Do NOT infer missing information.
-                    - Do NOT add explanations beyond what is stated.
-                    - Avoid repeating information across sections.
+• Preserve important names, dates, percentages, monetary values and statistics.
 
-                    Document excerpts :{"\n\n-----------------------------------------\n\n".join(batch_key_points)}"""
-    final_response=client.models.generate_content(
+• Order the bullets by importance.
+
+• Keep each bullet concise.
+
+Rules
+
+- Use ONLY the supplied document.
+
+- Do NOT invent information.
+
+- Do NOT use outside knowledge.
+
+Document:
+
+{document}
+"""
+
+    response = client.models.generate_content(
         model="gemini-2.5-flash",
-        contents=final_prompt
+        contents=prompt
     )
-    return final_response.text
-            
 
-
-
+    return response.text
