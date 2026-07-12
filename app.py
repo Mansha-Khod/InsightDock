@@ -452,11 +452,24 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
             with st.spinner("Extracting key insights..."):
                 try:
                     key_points = generate_key_points(
-                        chunk_json_path=paths["chunks"].name
+                        txt_path=paths["txt"].name
                     )
                     st.session_state["key_points"] = key_points
                 except Exception as exc:
-                    st.error(f"Could not extract key insights: {exc}")
+                    error = str(exc)
+                
+                    if "RESOURCE_EXHAUSTED" in error:
+                        st.warning(
+                                        """
+                            Gemini API quota exceeded.
+                            
+                            The free Gemini tier has a very small daily request limit.
+                            
+                            Please wait a minute and try again, or use another API key.
+                                        """
+                                    )
+                     else:
+                         st.error(f"Could not extract key insights: {exc}")
 
         if st.session_state.get("key_points"):
             st.markdown("### Key Insights")
