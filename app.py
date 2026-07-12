@@ -406,7 +406,20 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
                                         st.markdown(str(src))
 
                     except Exception as exc:
-                        st.error(f"Could not generate an answer: {exc}")
+                        error = str(exc)
+                    
+                        if "RESOURCE_EXHAUSTED" in error:
+                            st.warning(
+                                    """
+                        Gemini API quota exceeded.
+                        
+                        The free Gemini tier has reached its request limit.
+                        
+                        Please wait a minute and try again, or use another API key.
+                                    """
+                            )
+                        else:
+                            st.error(f"Could not generate an answer: {exc}")
 
     # ── TAB 2: Executive Summary ──────────────────────────────────────────────
     with tab_summary:
@@ -426,7 +439,20 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
         
                     st.session_state["summary"] = summary
                 except Exception as exc:
-                    st.error(f"Could not generate summary: {exc}")
+                    error = str(exc)
+                
+                    if "RESOURCE_EXHAUSTED" in error:
+                        st.warning(
+                                    """
+                        Gemini API quota exceeded.
+                        
+                        The free Gemini tier has reached its request limit.
+                        
+                        Please wait a minute and try again, or use another API key.
+                                    """
+                        )
+                    else:
+                        st.error(f"Could not generate summary: {exc}")
 
         if st.session_state.get("summary"):
             st.markdown("### Summary")
