@@ -35,10 +35,13 @@ st.set_page_config(
 # HELPERS
 # ════════════════════════════════════════════════════════════════════════════
 
-def get_paths(pdf_filename: str) -> dict:
-    stem = Path(pdf_filename).stem
+import hashlib
+
+def get_paths(uploaded_file) -> dict:
+    file_hash = hashlib.sha256(uploaded_file.getbuffer()).hexdigest()[:12]
+    stem = f"{Path(uploaded_file.name).stem}_{file_hash}"
     return {
-        "pdf":        REPORTS_DIR    / pdf_filename,
+        "pdf":        REPORTS_DIR    / f"{stem}.pdf",
         "txt":        PROCESSED_DIR  / f"{stem}.txt",
         "chunks":     PROCESSED_DIR  / f"{stem}_chunks.json",
         "embeddings": EMBEDDINGS_DIR / f"{stem}_embeddings.npy",
@@ -250,7 +253,7 @@ st.divider()
 
 # ── Process button handler ───────────────────────────────────────────────────
 if process_btn and uploaded_file is not None:
-    paths = get_paths(uploaded_file.name)
+    paths = get_paths(uploaded_file)
 
     with open(paths["pdf"], "wb") as f:
         f.write(uploaded_file.getbuffer())
