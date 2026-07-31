@@ -5,8 +5,6 @@ from config.config import GEMINI_API_KEY
 
 client=genai.Client(api_key=GEMINI_API_KEY)
 
-client = genai.Client(api_key=GEMINI_API_KEY)
-
 def generate_executive_summary(txt_path):
 
     document = load_document(txt_path)
