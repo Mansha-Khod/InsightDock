@@ -66,3 +66,17 @@ def load_all_chunks(chunk_json_path):
         chunks=json.load(f)
         return chunks
 
+
+def search_multi(query, docs, k=3):
+    all_results = []
+
+    for doc in docs:
+        index_path = doc["paths"]["index"].name
+        chunk_json_path = doc["paths"]["chunks"].name
+        doc_results = search(query, index_path, chunk_json_path, k=k)
+        for r in doc_results:
+            r["source_filename"] = doc["display_name"]
+        all_results.extend(doc_results)
+
+    all_results.sort(key=lambda r: r["distance"])
+    return all_results[:k]
