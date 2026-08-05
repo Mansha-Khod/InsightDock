@@ -112,14 +112,24 @@ def format_pipeline_log(log: list[dict]) -> None:
         st.markdown(f"{icon} &nbsp; {step['label']}{timing}")
 
 
+def ensure_documents_store() -> None:
+    """Make sure the multi-document session state containers exist."""
+    if "documents" not in st.session_state:
+        st.session_state["documents"] = {}   # stem -> {paths, display_name, summary, key_points, doc_stats, processing_time}
+    if "question_history" not in st.session_state:
+        st.session_state["question_history"] = []
+
+
 # ════════════════════════════════════════════════════════════════════════════
 # PROCESSING PIPELINE
 # ════════════════════════════════════════════════════════════════════════════
 
-def process_document(paths: dict) -> None:
+def process_document(paths: dict, display_name: str) -> None:
     """
     Run the five-step pipeline, updating a progress bar and a step log.
-    Records per-step timing and total elapsed time in session state.
+    On success, registers the document under its own entry in
+    st.session_state["documents"], keyed by its hash stem, so multiple
+    documents can be processed and kept around in the same session.
     """
     pipeline_log   = []
     total_start    = time.perf_counter()
@@ -177,23 +187,31 @@ def process_document(paths: dict) -> None:
         with log_placeholder.container():
             format_pipeline_log(pipeline_log)
 
-        st.session_state["processed"]       = True
-        st.session_state["paths"]           = paths
-        st.session_state["summary"]         = None
-        st.session_state["key_points"]      = None
-        st.session_state["question_history"] = st.session_state.get("question_history", [])
-        st.session_state["processing_time"] = f"{total_elapsed:.2f}"
-        st.session_state["doc_stats"]       = compute_doc_stats(paths)
+        ensure_documents_store()
+        stem = paths["pdf"].stem
+        st.session_state["documents"][stem] = {
+            "paths": paths,
+            "display_name": display_name,
+            "summary": None,
+            "key_points": None,
+            "doc_stats": compute_doc_stats(paths),
+            "processing_time": f"{total_elapsed:.2f}",
+        }
+        st.session_state["active_stem"] = stem
 
     except Exception as exc:
         progress_bar.empty()
         st.error(f"Pipeline failed: {exc}")
-        st.session_state["processed"] = False
+        # Failed docs simply never get added to st.session_state["documents"] —
+        # there's no single "processed" flag to fall back to anymore now that
+        # multiple documents can exist at once.
 
 
 # ════════════════════════════════════════════════════════════════════════════
 # SIDEBAR
 # ════════════════════════════════════════════════════════════════════════════
+
+ensure_documents_store()
 
 with st.sidebar:
     st.title("Document Upload")
@@ -212,20 +230,43 @@ with st.sidebar:
         type="primary",
     )
 
-    if st.session_state.get("processed"):
-        st.success("Document is ready.")
+    documents = st.session_state["documents"]
+
+    if documents:
+        st.success(f"{len(documents)} document(s) ready.")
     elif uploaded_file:
         st.info("Click Process Document to continue.")
 
-    # Show quick stats in sidebar once processed
-    if st.session_state.get("processed") and st.session_state.get("doc_stats"):
+    # Document switcher — which processed document the main panel shows.
+    # (This is separate from the multi-select used for cross-document search,
+    # added in step 1.2 — this just controls what stats/summary are displayed.)
+    active_stem = st.session_state.get("active_stem")
+    if documents:
         st.divider()
-        st.markdown("**Quick Stats**")
-        s = st.session_state["doc_stats"]
-        st.markdown(f"Pages: **{s['pages']}**")
-        st.markdown(f"Words: **{s['words']}**")
-        st.markdown(f"Chunks: **{s['chunks']}**")
-        st.markdown(f"Processing time: **{st.session_state.get('processing_time', '—')}s**")
+        stem_to_name = {stem: info["display_name"] for stem, info in documents.items()}
+        stem_options = list(stem_to_name.keys())
+        default_index = stem_options.index(active_stem) if active_stem in stem_options else len(stem_options) - 1
+
+        chosen_stem = st.selectbox(
+            "Active document",
+            options=stem_options,
+            format_func=lambda s: stem_to_name[s],
+            index=default_index,
+        )
+        st.session_state["active_stem"] = chosen_stem
+        active_stem = chosen_stem
+
+    # Show quick stats in sidebar for the active document
+    if active_stem and active_stem in documents:
+        active_doc = documents[active_stem]
+        s = active_doc.get("doc_stats", {})
+        if s:
+            st.divider()
+            st.markdown("**Quick Stats**")
+            st.markdown(f"Pages: **{s.get('pages', '—')}**")
+            st.markdown(f"Words: **{s.get('words', '—')}**")
+            st.markdown(f"Chunks: **{s.get('chunks', '—')}**")
+            st.markdown(f"Processing time: **{active_doc.get('processing_time', '—')}s**")
 
     # Question history in sidebar
     history = st.session_state.get("question_history", [])
@@ -254,15 +295,12 @@ st.divider()
 # ── Process button handler ───────────────────────────────────────────────────
 if process_btn and uploaded_file is not None:
     paths = get_paths(uploaded_file)
+    stem = paths["pdf"].stem
 
     with open(paths["pdf"], "wb") as f:
         f.write(uploaded_file.getbuffer())
 
-    # Reset state for new document
-    for key in ("processed", "paths", "summary", "key_points",
-                "doc_stats", "processing_time"):
-        st.session_state[key] = None
-    st.session_state["question_history"] = []
+    ensure_documents_store()
 
     if (
         paths["index"].exists()
@@ -271,13 +309,18 @@ if process_btn and uploaded_file is not None:
         and paths["txt"].exists()
     ):
         st.success(f"{uploaded_file.name} was already processed. Loading from cache.")
-        st.session_state["processed"]       = True
-        st.session_state["paths"]           = paths
-        st.session_state["doc_stats"]       = compute_doc_stats(paths)
-        st.session_state["processing_time"] = "cached"
+        st.session_state["documents"][stem] = {
+            "paths": paths,
+            "display_name": uploaded_file.name,
+            "summary": None,
+            "key_points": None,
+            "doc_stats": compute_doc_stats(paths),
+            "processing_time": "cached",
+        }
+        st.session_state["active_stem"] = stem
     else:
-        process_document(paths)
-        if st.session_state.get("processed"):
+        process_document(paths, uploaded_file.name)
+        if stem in st.session_state.get("documents", {}):
             st.success(f"{uploaded_file.name} processed successfully.")
 
 
@@ -285,14 +328,18 @@ if process_btn and uploaded_file is not None:
 # POST-PROCESSING UI
 # ════════════════════════════════════════════════════════════════════════════
 
-if st.session_state.get("processed") and st.session_state.get("paths"):
-    paths = st.session_state["paths"]
-    stats = st.session_state.get("doc_stats", {})
-    proc_time = st.session_state.get("processing_time", "—")
+active_stem = st.session_state.get("active_stem")
+documents = st.session_state.get("documents", {})
+
+if active_stem and active_stem in documents:
+    active_doc = documents[active_stem]
+    paths = active_doc["paths"]
+    stats = active_doc.get("doc_stats", {})
+    proc_time = active_doc.get("processing_time", "—")
 
     # ── Document Statistics card ─────────────────────────────────────────────
     with st.container(border=True):
-        st.markdown("**Document Statistics**")
+        st.markdown(f"**Document Statistics** — {active_doc['display_name']}")
 
         col1, col2, col3, col4, col5, col6 = st.columns(6)
         col1.metric("Pages",          stats.get("pages", "—"))
@@ -427,7 +474,7 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
                         txt_path=paths["txt"].name
                     )
 
-                    st.session_state["summary"] = summary
+                    st.session_state["documents"][active_stem]["summary"] = summary
                 except Exception as exc:
                     error = str(exc)
 
@@ -444,12 +491,13 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
                     else:
                         st.error(f"Could not generate summary: {exc}")
 
-        if st.session_state.get("summary"):
+        current_summary = st.session_state["documents"][active_stem].get("summary")
+        if current_summary:
             st.markdown("### Summary")
-            st.markdown(st.session_state["summary"])
+            st.markdown(current_summary)
             st.download_button(
                 label="Download Executive Summary",
-                data=st.session_state["summary"],
+                data=current_summary,
                 file_name=f"executive_summary_{paths['pdf'].stem}.txt",
                 mime="text/plain",
                 key="dl_summary",
@@ -470,7 +518,7 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
                     key_points = generate_key_points(
                         txt_path=paths["txt"].name
                     )
-                    st.session_state["key_points"] = key_points
+                    st.session_state["documents"][active_stem]["key_points"] = key_points
                 except Exception as exc:
                     error = str(exc)
 
@@ -487,9 +535,10 @@ if st.session_state.get("processed") and st.session_state.get("paths"):
                     else:
                         st.error(f"Could not extract key insights: {exc}")
 
-        if st.session_state.get("key_points"):
+        current_key_points = st.session_state["documents"][active_stem].get("key_points")
+        if current_key_points:
             st.markdown("### Key Insights")
-            raw = st.session_state["key_points"]
+            raw = current_key_points
 
             rendered_lines = []
             if isinstance(raw, list):
