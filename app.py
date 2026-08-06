@@ -417,10 +417,8 @@ if active_stem and active_stem in documents:
 
                         st.markdown("### Answer")
                         st.markdown(answer)
-
-                        # Determine overall confidence from best source
-                        if sources and isinstance(sources[0], dict):
-                            best_dist = sources[0].get("distance", 1.0)
+                        if mode == "semantic" and sources and sources[0].get("distance") is not None:
+                            best_dist = sources[0]["distance"]
                             conf      = confidence_label(best_dist)
                             badge_col = (
                                 "green"  if "High"   in conf else
