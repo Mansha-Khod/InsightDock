@@ -2,6 +2,7 @@ import faiss
 import numpy as np
 import json
 from src.model_loader import sentence_transformer_model
+from rank_bm25 import BM25Okapi
 from config.config import EMBEDDINGS_DIR
 from config.config import MODELS_DIR
 from config.config import PROCESSED_DIR
@@ -79,4 +80,30 @@ def search_multi(query, docs, k=3):
         all_results.extend(doc_results)
 
     all_results.sort(key=lambda r: r["distance"])
+    return all_results[:k]
+
+def bm25_search(query,chunk_json_path,k=3):
+    chunks=load_all_chunks(chunk_json_path)
+    tokenized_corpus=[c['text'].lower().split() for c in chunks]
+    bm25=BM25Okapi(tokenized_corpus)
+
+    tokenized_query=query.lower().split()
+    scores=bm25.get_scores(tokenized_query)
+    ranked_indices=np.argsort(scores)[::-1][:k]
+
+    return [
+        {"chunk": chunks[i], "bm25_score": float(scores[i])}
+        for i in ranked_indices
+    ]
+
+def bm25_search_multi(query, docs, k=3):
+    all_results = []
+    for doc in docs:
+        chunk_json_path = doc["paths"]["chunks"].name
+        doc_results = bm25_search(query, chunk_json_path, k=k)
+        for r in doc_results:
+            r["source_filename"] = doc["display_name"]
+        all_results.extend(doc_results)
+
+    all_results.sort(key=lambda r: r["bm25_score"], reverse=True)
     return all_results[:k]
