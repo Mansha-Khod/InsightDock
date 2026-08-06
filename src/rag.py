@@ -52,7 +52,13 @@ def ask_gemini(query,index_path,chunk_json_path):
 from src.vector_store import search_multi
 
 def ask_gemini_multi(query, docs, k=3, mode="semantic"):
-    result = search_multi(query, docs, k=k)
+    semantic_results = search_multi(query, docs, k=k * 3)
+
+    if mode == "hybrid":
+        keyword_results = bm25_search_multi(query, docs, k=k * 3)
+        result = reciprocal_rank_fusion(semantic_results, keyword_results, top_k=k)
+    else:
+        result = semantic_results[:k]
 
     chunks = [item["chunk"]["text"] for item in result]
     context = "\n----\n".join(chunks)
