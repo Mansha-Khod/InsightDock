@@ -7,3 +7,4 @@ PyMuPDF
 python-dotenv
 torch
 transformers
+rank_bm25
