@@ -50,7 +50,7 @@ def search(query,index_path,chunk_json_path,k=3):
     ) as f:
 
         chunks = json.load(f)
-
+    k = min(k, len(chunks))
     results=[]
 
     for rank, chunk_index in enumerate(indices[0], start=1):
