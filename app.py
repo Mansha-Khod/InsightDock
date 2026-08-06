@@ -10,7 +10,7 @@ from src.pdf_loader        import extract_text
 from src.chunker           import text_to_chunks
 from src.embeddings        import generate_embeddings
 from src.vector_store      import build_index
-from src.rag               import ask_gemini
+from src.rag               import ask_gemini_multi
 from src.executive_summary import generate_executive_summary
 from src.key_points        import generate_key_points
 
@@ -361,8 +361,21 @@ if active_stem and active_stem in documents:
         c3.metric("Average Chunk",  f"{stats.get('avg_chunk_words', '—')} words")
 
     st.divider()
+    stem_to_name = {stem: info["display_name"] for stem, info in documents.items()}
+    selected_names = st.multiselect(
+        "Search within (leave empty to search all uploaded documents)",
+        options=list(stem_to_name.values()),
+    )
+    if selected_names:
+        selected_stems = [s for s, n in stem_to_name.items() if n in selected_names]
+    else:
+        selected_stems = list(documents.keys())
 
-    # ── Tabs ─────────────────────────────────────────────────────────────────
+    docs_for_search = [
+        {"paths": documents[s]["paths"], "display_name": documents[s]["display_name"]}
+        for s in selected_stems
+    ]
+        # ── Tabs ─────────────────────────────────────────────────────────────────
     tab_qa, tab_summary, tab_keypoints = st.tabs(
         ["💬 Ask Questions", "📋 Executive Summary", "⭐ Key Insights"]
     )
@@ -370,6 +383,12 @@ if active_stem and active_stem in documents:
     # ── TAB 1: Ask Questions ─────────────────────────────────────────────────
     with tab_qa:
         st.subheader("Ask a Question About the Document")
+        search_mode = st.radio(
+            "Search mode",
+            ["Hybrid (semantic + keyword)", "Semantic only"],
+            horizontal=True,
+        )
+        mode = "hybrid" if "Hybrid" in search_mode else "semantic"
 
         question = st.text_input(
             label="Your question",
@@ -390,24 +409,16 @@ if active_stem and active_stem in documents:
 
                 with st.spinner("Searching the document and generating an answer..."):
                     try:
-                        result = ask_gemini(
+                        answer, sources = ask_gemini_multi(
                             query=question,
-                            index_path=paths["index"].name,
-                            chunk_json_path=paths["chunks"].name,
+                            docs=docs_for_search,
+                            mode=mode,
                         )
-
-                        # Support plain string or (answer, sources) tuple
-                        if isinstance(result, tuple):
-                            answer, sources = result[0], result[1]
-                        else:
-                            answer, sources = result, None
 
                         st.markdown("### Answer")
                         st.markdown(answer)
-
-                        # Determine overall confidence from best source
-                        if sources and isinstance(sources[0], dict):
-                            best_dist = sources[0].get("distance", 1.0)
+                        if mode == "semantic" and sources and sources[0].get("distance") is not None:
+                            best_dist = sources[0]["distance"]
                             conf      = confidence_label(best_dist)
                             badge_col = (
                                 "green"  if "High"   in conf else
@@ -432,7 +443,7 @@ if active_stem and active_stem in documents:
                             st.markdown("### Retrieved Sources")
                             for i, src in enumerate(sources, 1):
                                 if isinstance(src, dict):
-                                    label      = label = f"Source {i} — Pages: {src.get('pages', '—')}"
+                                    label      =label = f"Source {i} — {src.get('filename', '—')}, Pages: {src.get('pages', '—')}"
                                     
                                     with st.expander(label, expanded=(i == 1)):
                                         st.metric("Pages", src.get("pages", "—"))
