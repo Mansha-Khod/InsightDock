@@ -19,19 +19,20 @@ The application combines Natural Language Processing (NLP), semantic search, vec
 ---
 ## Features
 
-* Upload any PDF document
+* Upload and manage multiple PDF documents in one session
 * Automatic text extraction using PyMuPDF
 * Intelligent document chunking
 * Sentence Transformer embeddings
-* FAISS vector search
-* Retrieval-Augmented Question Answering (RAG)
-* Executive Summary generation
-* Key Insights extraction
-* Source attribution with page references
+* FAISS vector search (semantic)
+* BM25 keyword search, fused with semantic search via Reciprocal Rank Fusion (hybrid mode)
+* Cross-document retrieval — search within one document or across all uploaded documents
+* Retrieval-Augmented Question Answering (RAG) with per-source, per-document citations
+* Executive Summary generation, per document
+* Key Insights extraction, per document
+* Source attribution with filename and page references
 * Interactive Streamlit interface
 * Cached document processing
 * Document statistics dashboard
-
 ---
 ---
 ## Screenshots
@@ -74,6 +75,22 @@ The application combines Natural Language Processing (NLP), semantic search, vec
 
 ---
 
+
+## Multi-Document Search & Retrieval
+
+InsightDock supports uploading and querying multiple documents in the same session:
+
+- Each document is processed and stored independently — its own chunk file, embedding file, and FAISS index, named by a hash of its content so re-uploads are cached automatically.
+- Queries can target a single document or be run across every uploaded document at once; retrieved chunks are merged by relevance and tagged with their source filename.
+
+Retrieval runs in one of two modes:
+
+- **Semantic search** — FAISS similarity search over sentence embeddings.
+- **Hybrid search** — semantic search combined with BM25 keyword search, merged using **Reciprocal Rank Fusion (RRF)**. RRF combines the two rankings by rank position rather than raw score, since FAISS distances and BM25 scores aren't on comparable scales. This catches exact terms (numbers, names, acronyms) that pure semantic search can miss.
+
+**Known limitation:** answer confidence scoring is currently only shown in semantic mode, since BM25-selected sources don't have a FAISS distance to score against.
+---
+
 ## Tech Stack
 
 * Python
@@ -82,6 +99,7 @@ The application combines Natural Language Processing (NLP), semantic search, vec
 * Sentence Transformers
 * Hugging Face Transformers
 * FAISS
+* rank-bm25
 * PyMuPDF
 * NumPy
 * JSON
@@ -185,13 +203,11 @@ streamlit run app.py
 ## Future Improvements
 
 - OCR support for scanned PDFs
-- Hybrid search (keyword + semantic retrieval)
-- Multi-document knowledge base
+- True cross-document summarization (currently summaries and key insights run per-document, not synthesized across documents)
 - Citation highlighting inside documents
 - Conversational memory
 - Metadata filtering
 - Local LLM support (Llama, Mistral)
-- Docker deployment
 
 ---
 
