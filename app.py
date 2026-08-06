@@ -370,6 +370,12 @@ if active_stem and active_stem in documents:
     # ── TAB 1: Ask Questions ─────────────────────────────────────────────────
     with tab_qa:
         st.subheader("Ask a Question About the Document")
+        search_mode = st.radio(
+            "Search mode",
+            ["Hybrid (semantic + keyword)", "Semantic only"],
+            horizontal=True,
+        )
+        mode = "hybrid" if "Hybrid" in search_mode else "semantic"
 
         question = st.text_input(
             label="Your question",
