@@ -1,5 +1,5 @@
 from google import genai
-from src.vector_store import search
+from src.vector_store import search,bm25_search,bm25_search_multi
 from config.config import GEMINI_API_KEY
 
 client=genai.Client(api_key=GEMINI_API_KEY)
@@ -101,3 +101,22 @@ def ask_gemini_multi(query, docs, k=3, mode="semantic"):
     return response.text, sources
 
     
+def reciprocal_rank_fusion(semantic_results, keyword_results, k=60, top_k=3):
+    scores = {}
+    lookup = {}
+
+    def key_for(item):
+        return (item.get("source_filename"), item["chunk"]["chunk_id"])
+
+    for rank, item in enumerate(semantic_results):
+        cid = key_for(item)
+        lookup[cid] = item
+        scores[cid] = scores.get(cid, 0) + 1 / (k + rank + 1)
+
+    for rank, item in enumerate(keyword_results):
+        cid = key_for(item)
+        lookup.setdefault(cid, item)
+        scores[cid] = scores.get(cid, 0) + 1 / (k + rank + 1)
+
+    ranked_ids = sorted(scores, key=scores.get, reverse=True)[:top_k]
+    return [lookup[cid] for cid in ranked_ids]
