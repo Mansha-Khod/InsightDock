@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>InsightDock</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>InsightDock</h1>
+    <p class="subtitle">Upload PDFs, ask questions, get grounded answers.</p>
+
+    <section class="upload-section">
+      <input type="file" id="fileInput" accept="application/pdf" />
+      <button id="uploadBtn">Upload &amp; Process</button>
+      <div id="uploadStatus"></div>
+    </section>
+
+    <section class="documents-section">
+      <h2>Documents</h2>
+      <div id="documentList"></div>
+    </section>
+
+    <section class="query-section">
+      <h2>Ask a Question</h2>
+      <div class="mode-toggle">
+        <label><input type="radio" name="mode" value="hybrid" checked /> Hybrid</label>
+        <label><input type="radio" name="mode" value="semantic" /> Semantic only</label>
+      </div>
+      <input type="text" id="questionInput" placeholder="e.g. What are the key risks mentioned?" />
+      <button id="askBtn">Ask</button>
+      <div id="answerBox"></div>
+      <div id="sourcesBox"></div>
+    </section>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

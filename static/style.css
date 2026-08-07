@@ -1,0 +1,14 @@
+* { box-sizing: border-box; font-family: system-ui, sans-serif; }
+body { margin: 0; background: #f7f7f8; color: #1a1a1a; }
+.container { max-width: 720px; margin: 40px auto; padding: 0 20px; }
+h1 { margin-bottom: 4px; }
+.subtitle { color: #666; margin-top: 0; }
+section { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+input[type="text"], input[type="file"] { width: 100%; padding: 8px; margin: 8px 0; border: 1px solid #ccc; border-radius: 4px; }
+button { padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 4px; cursor: pointer; }
+button:hover { background: #1d4ed8; }
+.doc-item { display: block; margin: 6px 0; }
+.mode-toggle { margin: 10px 0; }
+.mode-toggle label { margin-right: 16px; }
+.source-item { border-top: 1px solid #eee; padding: 10px 0; }
+#answerBox { white-space: pre-wrap; margin-top: 12px; }
