@@ -11,6 +11,7 @@ from src.registry     import register_document,load_registry
 from src.rag          import ask_gemini_multi
 from src.executive_summary import generate_executive_summary
 from src.key_points   import generate_key_points
+from src.stats import compute_doc_stats
 
 
 app=FastAPI(title='InsightDocl API')
@@ -54,9 +55,19 @@ def _get_paths_for_stem(stem:str)->dict:
         "index":      MODELS_DIR     / f"{stem}.index",
     }
 
+
+
 @app.get("/documents")
 async def list_documents():
-    return load_registry()
+    registry = load_registry()
+    enriched = {}
+    for stem, info in registry.items():
+        paths = _get_paths_for_stem(stem)
+        enriched[stem] = {
+            "display_name": info["display_name"],
+            "stats": compute_doc_stats(paths),
+        }
+    return enriched
 
 @app.post("/query")
 async def query_documents(request:QueryRequest):
