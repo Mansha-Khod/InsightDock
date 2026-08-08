@@ -7,7 +7,7 @@ def load_registry() -> dict:
     if not REGISTERY_PATH.exists():
         return {}
     with open(REGISTERY_PATH,'r',encoding='utf-8') as f:
-        return json.load()
+        return json.load(f)
 
 def register_document(stem:str,display_name:str)-> None:
     registry=load_registry()
