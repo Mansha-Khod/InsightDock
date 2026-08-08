@@ -30,7 +30,7 @@ The application combines Natural Language Processing (NLP), semantic search, vec
 * Executive Summary generation, per document
 * Key Insights extraction, per document
 * Source attribution with filename and page references
-* Interactive Streamlit interface
+* Interactive web interface (FastAPI + vanilla JS)
 * Cached document processing
 * Document statistics dashboard
 ---
@@ -71,7 +71,7 @@ The application combines Natural Language Processing (NLP), semantic search, vec
 - Stores vector representations using FAISS for efficient similarity search.
 - Generates grounded answers with page-level source attribution.
 - Includes automated executive summaries and document key insights.
-- Interactive Streamlit interface with document statistics and cached processing.
+- Interactive web interface (FastAPI + vanilla JS) with document statistics and cached processing.
 
 ---
 
@@ -90,11 +90,30 @@ Retrieval runs in one of two modes:
 
 **Known limitation:** answer confidence scoring is currently only shown in semantic mode, since BM25-selected sources don't have a FAISS distance to score against.
 ---
+---
+
+## API
+
+InsightDock is served as a FastAPI application with a REST API and a vanilla JS frontend, migrated from an earlier Streamlit prototype.
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/` | GET | Serves the frontend |
+| `/upload` | POST | Upload and process a PDF |
+| `/documents` | GET | List processed documents with stats |
+| `/query` | POST | Ask a question across one or more documents |
+| `/summary/{stem}` | GET | Generate an executive summary for a document |
+| `/insights/{stem}` | GET | Extract key insights for a document |
+
+Interactive API docs are auto-generated at `/docs`.
+---
 
 ## Tech Stack
 
 * Python
-* Streamlit
+* FastAPI
+* Uvicorn
+* Vanilla JavaScript, HTML, CSS (frontend)
 * Google Gemini 2.5 Flash
 * Sentence Transformers
 * Hugging Face Transformers
@@ -150,9 +169,17 @@ src/
     rag.py
     executive_summary.py
     key_points.py
+    paths.py
+    registry.py
+    stats.py
+
+static/
+    index.html
+    app.js
+    style.css
 
 config/
-app.py
+main.py
 requirements.txt
 ```
 
@@ -182,8 +209,10 @@ GEMINI_API_KEY=YOUR_API_KEY
 Run the application
 
 ```bash
-streamlit run app.py
+uvicorn main:app --reload
 ```
+
+Then open `http://127.0.0.1:8000` in your browser.
 
 ---
 
