@@ -11,7 +11,7 @@ def load_registry() -> dict:
 
 def register_document(stem:str,display_name:str)-> None:
     registry=load_registry()
-    registry['stem']={'display_name':display_name}
+    registry[stem]={'display_name':display_name}
     REGISTERY_PATH.parent.mkdir(parents=True,exist_ok=True)
     with open(REGISTERY_PATH,'w',encoding='utf-8') as f:
         json.dump(registry,f,indent=2)
