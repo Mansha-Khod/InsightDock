@@ -4,3 +4,17 @@
 # Python cache
 __pycache__/
 *.pyc
+
+# Generated data — regenerated automatically by the pipeline, never committed
+data/reports/*.pdf
+data/processed/*.txt
+data/processed/*_chunks.json
+data/processed/documents.json
+data/embeddings/*.npy
+models/*.index
+
+# Keep the folder structure even though contents are ignored
+!data/reports/.gitkeep
+!data/processed/.gitkeep
+!data/embeddings/.gitkeep
+!models/.gitkeep
