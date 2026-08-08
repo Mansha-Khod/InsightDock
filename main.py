@@ -37,7 +37,7 @@ async def upload_document(file:UploadFile=File(...)):
     stem=paths['pdf'].stem
     if not paths['index'].exists():
         extract_text(str(paths['pdf']),str(paths['txt']))
-        text_to_chunks(paths['txt'].name,paths['chunk'].name)
+        text_to_chunks(paths['txt'].name,paths['chunks'].name)
         generate_embeddings(paths['chunks'].name,paths['embeddings'].name)
         build_index(paths['embeddings'].name,paths['index'].name)
     register_document(stem,file.filename)
