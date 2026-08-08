@@ -9,6 +9,8 @@ from src.vector_store import build_index
 from src.paths        import get_paths ,get_paths as _get_paths
 from src.registry     import register_document,load_registry
 from src.rag          import ask_gemini_multi
+from src.executive_summary import generate_executive_summary
+from src.key_points   import generate_key_points
 
 
 app=FastAPI(title='InsightDocl API')
@@ -74,8 +76,18 @@ async def query_documents(request:QueryRequest):
 
 @app.get("/summary/{stem}")
 async def get_summary(stem:str):
-    pass
+    registry=load_registry()
+    if stem not in registry:
+        return {"error":"documnet not found"}
+    paths=get_insights(stem)
+    summary=generate_executive_summary(txt_path=paths['txt'].name)
+    return {'stem':stem,'summary':summary}
 
 @app.get("/insights/{stem}")
 async def get_insights(stem:str):
-    pass
+    registry = load_registry()
+    if stem not in registry:
+        return {"error": "document not found"}
+    paths = _get_paths_for_stem(stem)
+    key_points = generate_key_points(txt_path=paths["txt"].name)
+    return {"stem": stem, "key_points": key_points}
