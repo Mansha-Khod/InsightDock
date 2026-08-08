@@ -6,8 +6,10 @@ from src.pdf_loader   import extract_text
 from src.chunker      import text_to_chunks
 from src.embeddings   import generate_embeddings
 from src.vector_store import build_index
-from src.paths        import get_paths
-from src.registry     import register_document
+from src.paths        import get_paths ,get_paths as _get_paths
+from src.registry     import register_document,load_registry
+from src.rag          import ask_gemini_multi
+
 
 app=FastAPI(title='InsightDocl API')
 
@@ -40,6 +42,15 @@ async def upload_document(file:UploadFile=File(...)):
         return {'stem':stem,"filename":file.filename}
 
 
+def _get_paths_for_stem(stem:str)->dict:
+    from config.config import REPORTS_DIR, PROCESSED_DIR, EMBEDDINGS_DIR, MODELS_DIR
+    return {
+        "pdf":        REPORTS_DIR    / f"{stem}.pdf",
+        "txt":        PROCESSED_DIR  / f"{stem}.txt",
+        "chunks":     PROCESSED_DIR  / f"{stem}_chunks.json",
+        "embeddings": EMBEDDINGS_DIR / f"{stem}_embeddings.npy",
+        "index":      MODELS_DIR     / f"{stem}.index",
+    }
 
 @app.get("/documents")
 async def list_documnets():
@@ -47,7 +58,19 @@ async def list_documnets():
 
 @app.post("/query")
 async def query_documents(request:QueryRequest):
-    pass
+    registry=load_registry()
+    stems=request.doc_stems or list(registry.keys())
+    docs_for_search=[
+        {'paths':_get_paths_for_stem(s),'display_name':registry[s]['display_name']}
+        for s in stems if s in registry
+
+    ]
+    answer,sources=ask_gemini_multi(
+        query=request.question,
+        docs=docs_for_search,
+        mode=request.mode,
+    )
+    return ('answer':answer,'sources',sources)
 
 @app.get("/summary/{stem}")
 async def get_summary(stem:str):
