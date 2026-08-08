@@ -6,7 +6,7 @@ from src.pdf_loader   import extract_text
 from src.chunker      import text_to_chunks
 from src.embeddings   import generate_embeddings
 from src.vector_store import build_index
-from src.paths        import get_paths ,get_paths as _get_paths
+from src.paths        import get_paths 
 from src.registry     import register_document,load_registry
 from src.rag          import ask_gemini_multi
 from src.executive_summary import generate_executive_summary
@@ -31,17 +31,17 @@ async def upload_document(file:UploadFile=File(...)):
     file_bytes=await file.read()
     paths=get_paths(file.filename,file_bytes)
     for key in ("pdf",'txt','chunks','embeddings','index'):
-        paths[key].parent.mkdir(parents=True,exists_ok=True)
+        paths[key].parent.mkdir(parents=True,exist_ok=True)
     with open(paths['pdf'],'wb') as f:
         f.write(file_bytes)
     stem=paths['pdf'].stem
     if not paths['index'].exists():
-        extract_text(str(paths['pdf']),str(paths['text']))
-        text_to_chunks(paths['text'].name,paths['chunk'].name)
+        extract_text(str(paths['pdf']),str(paths['txt']))
+        text_to_chunks(paths['txt'].name,paths['chunk'].name)
         generate_embeddings(paths['chunks'].name,paths['embeddings'].name)
         build_index(paths['embeddings'].name,paths['index'].name)
-        register_document(stem,file.filename)
-        return {'stem':stem,"filename":file.filename}
+    register_document(stem,file.filename)
+    return {'stem':stem,"filename":file.filename}
 
 
 def _get_paths_for_stem(stem:str)->dict:
@@ -55,8 +55,8 @@ def _get_paths_for_stem(stem:str)->dict:
     }
 
 @app.get("/documents")
-async def list_documnets():
-    pass
+async def list_documents():
+    return load_registry()
 
 @app.post("/query")
 async def query_documents(request:QueryRequest):
@@ -79,7 +79,7 @@ async def get_summary(stem:str):
     registry=load_registry()
     if stem not in registry:
         return {"error":"documnet not found"}
-    paths=get_insights(stem)
+    paths=_get_paths_for_stem(stem)
     summary=generate_executive_summary(txt_path=paths['txt'].name)
     return {'stem':stem,'summary':summary}
 
