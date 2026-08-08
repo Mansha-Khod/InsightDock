@@ -2,37 +2,90 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>InsightDock</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>InsightDock</h1>
-    <p class="subtitle">Upload PDFs, ask questions, get grounded answers.</p>
 
-    <section class="upload-section">
-      <input type="file" id="fileInput" accept="application/pdf" />
-      <button id="uploadBtn">Upload &amp; Process</button>
-      <div id="uploadStatus"></div>
-    </section>
-
-    <section class="documents-section">
-      <h2>Documents</h2>
-      <div id="documentList"></div>
-    </section>
-
-    <section class="query-section">
-      <h2>Ask a Question</h2>
-      <div class="mode-toggle">
-        <label><input type="radio" name="mode" value="hybrid" checked /> Hybrid</label>
-        <label><input type="radio" name="mode" value="semantic" /> Semantic only</label>
+  <header class="masthead">
+    <div class="masthead-inner">
+      <div class="wordmark">
+        <span class="wordmark-main">InsightDock</span>
+        <span class="wordmark-sub">Document Intelligence — Grounded in the Source</span>
       </div>
-      <input type="text" id="questionInput" placeholder="e.g. What are the key risks mentioned?" />
-      <button id="askBtn">Ask</button>
-      <div id="answerBox"></div>
-      <div id="sourcesBox"></div>
+      <div class="masthead-meta" id="docCount">0 documents on file</div>
+    </div>
+  </header>
+
+  <main class="dossier">
+
+    <!-- INTAKE -->
+    <section class="panel intake">
+      <div class="panel-label">01 — Intake</div>
+      <h2>Add a document</h2>
+      <p class="panel-hint">Upload a PDF to extract, chunk, and index it for retrieval.</p>
+
+      <div class="intake-row">
+        <label class="file-slot" id="fileSlot">
+          <input type="file" id="fileInput" accept="application/pdf" hidden />
+          <span id="fileSlotText">Choose a PDF file&hellip;</span>
+        </label>
+        <button id="uploadBtn" class="btn btn-primary">Process</button>
+      </div>
+      <div id="uploadStatus" class="status-line"></div>
     </section>
-  </div>
+
+    <!-- DOCKET -->
+    <section class="panel docket">
+      <div class="panel-label">02 — Docket</div>
+      <h2>Documents on file</h2>
+      <div id="documentList" class="doc-list">
+        <p class="empty-note">No documents processed yet. Add one above to begin.</p>
+      </div>
+    </section>
+
+    <!-- INQUIRY -->
+    <section class="panel inquiry">
+      <div class="panel-label">03 — Inquiry</div>
+      <h2>Ask a question</h2>
+
+      <div class="mode-switch" role="radiogroup" aria-label="Search mode">
+        <label class="mode-option">
+          <input type="radio" name="mode" value="hybrid" checked />
+          <span>Hybrid</span>
+        </label>
+        <label class="mode-option">
+          <input type="radio" name="mode" value="semantic" />
+          <span>Semantic only</span>
+        </label>
+      </div>
+
+      <div class="intake-row">
+        <input type="text" id="questionInput" class="question-input"
+               placeholder="e.g. What are the key risks mentioned?" />
+        <button id="askBtn" class="btn btn-primary">Ask</button>
+      </div>
+    </section>
+
+    <!-- FINDINGS -->
+    <section class="panel findings" id="findingsSection" hidden>
+      <div class="panel-label">04 — Findings</div>
+      <h2>Answer</h2>
+      <div id="answerBox" class="answer-box"></div>
+
+      <div id="sourcesHeader" class="sources-header" hidden>Cited sources</div>
+      <div id="sourcesBox" class="sources-row"></div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <span>InsightDock — RAG pipeline: extraction &rarr; chunking &rarr; embedding &rarr; FAISS &rarr; hybrid retrieval &rarr; grounded answer</span>
+  </footer>
 
   <script src="/static/app.js"></script>
 </body>
