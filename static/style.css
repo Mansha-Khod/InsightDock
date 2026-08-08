@@ -224,6 +224,71 @@ body {
 }
 .doc-stats b { color: var(--text-dark); font-weight: 600; }
 
+/* ---------- Brief & Insights ---------- */
+
+.doc-select {
+  flex: 1 1 220px;
+  font-family: var(--sans);
+  font-size: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(32,28,20,0.2);
+  border-radius: var(--radius);
+  background: rgba(255,255,255,0.4);
+  color: var(--text-dark);
+}
+.doc-select:focus {
+  outline: 2px solid var(--teal);
+  outline-offset: 1px;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--teal-dim);
+  border: 1px solid var(--teal-dim);
+}
+.btn-secondary:hover { background: rgba(63, 123, 118, 0.1); }
+.btn-secondary:disabled { color: #9AA39F; border-color: #9AA39F; cursor: not-allowed; }
+
+.brief-output {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(32,28,20,0.15);
+}
+
+.brief-output-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brass-dim);
+  margin-bottom: 8px;
+}
+
+.brief-text {
+  font-size: 14.5px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+.brief-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.brief-list li {
+  font-size: 14px;
+  line-height: 1.5;
+  padding-left: 18px;
+  position: relative;
+}
+.brief-list li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--brass);
+}
+
 /* ---------- Inquiry ---------- */
 
 .mode-switch {
@@ -266,6 +331,40 @@ body {
 .question-input:focus {
   outline: 2px solid var(--teal);
   outline-offset: 1px;
+}
+
+.history-box {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(32,28,20,0.15);
+}
+
+.history-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brass-dim);
+  margin-bottom: 8px;
+}
+
+.history-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.history-list li {
+  font-size: 13px;
+  color: var(--text-mute);
+  padding: 5px 8px;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.history-list li:hover {
+  background: rgba(63, 123, 118, 0.12);
+  color: var(--text-dark);
 }
 
 /* ---------- Findings ---------- */

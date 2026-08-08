@@ -9,6 +9,17 @@ const sourcesHeaderEl = document.getElementById("sourcesHeader");
 const sourcesBoxEl   = document.getElementById("sourcesBox");
 
 let knownDocs = {}; // stem -> { display_name, selected, stats }
+let questionHistory = []; // in-memory only — no server session to persist this in
+
+const briefDocSelectEl = document.getElementById("briefDocSelect");
+const summaryBtnEl     = document.getElementById("summaryBtn");
+const insightsBtnEl    = document.getElementById("insightsBtn");
+const summaryOutputEl  = document.getElementById("summaryOutput");
+const summaryTextEl    = document.getElementById("summaryText");
+const insightsOutputEl = document.getElementById("insightsOutput");
+const insightsListEl   = document.getElementById("insightsList");
+const historyBoxEl     = document.getElementById("historyBox");
+const historyListEl    = document.getElementById("historyList");
 
 // ---------- File input label ----------
 
@@ -89,6 +100,29 @@ function renderDocumentList() {
 
     documentListEl.appendChild(card);
   });
+
+  renderBriefDocSelect();
+}
+
+function renderBriefDocSelect() {
+  const stems = Object.keys(knownDocs);
+  const previousValue = briefDocSelectEl.value;
+
+  briefDocSelectEl.innerHTML = "";
+  stems.forEach((stem) => {
+    const option = document.createElement("option");
+    option.value = stem;
+    option.textContent = knownDocs[stem].display_name;
+    briefDocSelectEl.appendChild(option);
+  });
+
+  if (stems.includes(previousValue)) {
+    briefDocSelectEl.value = previousValue;
+  }
+
+  const hasDocuments = stems.length > 0;
+  summaryBtnEl.disabled = !hasDocuments;
+  insightsBtnEl.disabled = !hasDocuments;
 }
 
 // ---------- Upload ----------
@@ -127,12 +161,85 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
   }
 });
 
+// ---------- Summary & Key Insights ----------
+
+summaryBtnEl.addEventListener("click", async () => {
+  const stem = briefDocSelectEl.value;
+  if (!stem) return;
+
+  summaryOutputEl.hidden = false;
+  summaryTextEl.textContent = "Generating summary…";
+
+  try {
+    const res = await fetch(`/summary/${encodeURIComponent(stem)}`);
+    const data = await res.json();
+    summaryTextEl.textContent = data.summary || data.error || "No summary returned.";
+  } catch (err) {
+    summaryTextEl.textContent = "Could not generate summary — check the server is running.";
+  }
+});
+
+insightsBtnEl.addEventListener("click", async () => {
+  const stem = briefDocSelectEl.value;
+  if (!stem) return;
+
+  insightsOutputEl.hidden = false;
+  insightsListEl.innerHTML = "<li>Extracting key insights…</li>";
+
+  try {
+    const res = await fetch(`/insights/${encodeURIComponent(stem)}`);
+    const data = await res.json();
+
+    insightsListEl.innerHTML = "";
+    const points = data.key_points;
+
+    if (data.error) {
+      insightsListEl.innerHTML = `<li>${data.error}</li>`;
+    } else if (Array.isArray(points)) {
+      points.forEach((p) => {
+        const li = document.createElement("li");
+        li.textContent = p;
+        insightsListEl.appendChild(li);
+      });
+    } else {
+      // Backend may return a single block of text instead of a list
+      String(points || "")
+        .split("\n")
+        .filter((line) => line.trim())
+        .forEach((line) => {
+          const li = document.createElement("li");
+          li.textContent = line.replace(/^[-*]\s*/, "");
+          insightsListEl.appendChild(li);
+        });
+    }
+  } catch (err) {
+    insightsListEl.innerHTML = "<li>Could not extract key insights — check the server is running.</li>";
+  }
+});
+
 // ---------- Ask ----------
 
-document.getElementById("askBtn").addEventListener("click", async () => {
-  const question = document.getElementById("questionInput").value.trim();
-  if (!question) return;
+function renderHistory() {
+  if (!questionHistory.length) {
+    historyBoxEl.hidden = true;
+    return;
+  }
+  historyBoxEl.hidden = false;
+  historyListEl.innerHTML = "";
 
+  // Most recent first, capped at 10 — same cap the old Streamlit sidebar used
+  questionHistory.slice(-10).reverse().forEach((q) => {
+    const li = document.createElement("li");
+    li.textContent = q;
+    li.addEventListener("click", () => {
+      document.getElementById("questionInput").value = q;
+      askQuestion(q);
+    });
+    historyListEl.appendChild(li);
+  });
+}
+
+async function askQuestion(question) {
   const mode = document.querySelector('input[name="mode"]:checked').value;
   const selectedStems = Object.keys(knownDocs).filter((s) => knownDocs[s].selected);
 
@@ -175,6 +282,16 @@ document.getElementById("askBtn").addEventListener("click", async () => {
   } catch (err) {
     answerBoxEl.textContent = "Something went wrong — check the server is running.";
   }
+}
+
+document.getElementById("askBtn").addEventListener("click", async () => {
+  const question = document.getElementById("questionInput").value.trim();
+  if (!question) return;
+
+  questionHistory.push(question);
+  renderHistory();
+
+  await askQuestion(question);
 });
 
 loadDocuments();

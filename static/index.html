@@ -48,9 +48,32 @@
       </div>
     </section>
 
+    <!-- BRIEF & INSIGHTS -->
+    <section class="panel brief">
+      <div class="panel-label">03 — Brief &amp; Insights</div>
+      <h2>Summary &amp; key insights</h2>
+      <p class="panel-hint">Generate an executive summary or extract key insights for a single document.</p>
+
+      <div class="intake-row">
+        <select id="briefDocSelect" class="doc-select"></select>
+        <button id="summaryBtn" class="btn btn-secondary">Summary</button>
+        <button id="insightsBtn" class="btn btn-secondary">Key Insights</button>
+      </div>
+
+      <div id="summaryOutput" class="brief-output" hidden>
+        <div class="brief-output-label">Executive Summary</div>
+        <div id="summaryText" class="brief-text"></div>
+      </div>
+
+      <div id="insightsOutput" class="brief-output" hidden>
+        <div class="brief-output-label">Key Insights</div>
+        <ul id="insightsList" class="brief-list"></ul>
+      </div>
+    </section>
+
     <!-- INQUIRY -->
     <section class="panel inquiry">
-      <div class="panel-label">03 — Inquiry</div>
+      <div class="panel-label">04 — Inquiry</div>
       <h2>Ask a question</h2>
 
       <div class="mode-switch" role="radiogroup" aria-label="Search mode">
@@ -69,11 +92,16 @@
                placeholder="e.g. What are the key risks mentioned?" />
         <button id="askBtn" class="btn btn-primary">Ask</button>
       </div>
+
+      <div id="historyBox" class="history-box" hidden>
+        <div class="history-label">Recent questions</div>
+        <ul id="historyList" class="history-list"></ul>
+      </div>
     </section>
 
     <!-- FINDINGS -->
     <section class="panel findings" id="findingsSection" hidden>
-      <div class="panel-label">04 — Findings</div>
+      <div class="panel-label">05 — Findings</div>
       <h2>Answer</h2>
       <div id="answerBox" class="answer-box"></div>
 
