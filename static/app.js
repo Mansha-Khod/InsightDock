@@ -10,9 +10,11 @@ async function loadDocuments() {
   const registry = await res.json();
 
   for (const stem in registry) {
-    if (!(stem in knownDocs)) {
-      knownDocs[stem] = { display_name: registry[stem].display_name, selected: true };
-    }
+    knownDocs[stem] = {
+      display_name: registry[stem].display_name,
+      selected: knownDocs[stem]?.selected ?? true,
+      stats: registry[stem].stats,
+    };
   }
 
   renderDocumentList();
@@ -22,19 +24,35 @@ function renderDocumentList() {
   documentListEl.innerHTML = "";
   for (const stem in knownDocs) {
     const doc = knownDocs[stem];
-    const label = document.createElement("label");
-    label.className = "doc-item";
 
+    const card = document.createElement("div");
+    card.className = "doc-card";
+
+    const header = document.createElement("label");
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = doc.selected;
     checkbox.addEventListener("change", () => {
       knownDocs[stem].selected = checkbox.checked;
     });
+    header.appendChild(checkbox);
+    header.append(" " + doc.display_name);
+    card.appendChild(header);
 
-    label.appendChild(checkbox);
-    label.append(" " + doc.display_name);
-    documentListEl.appendChild(label);
+    if (doc.stats) {
+      const statsRow = document.createElement("div");
+      statsRow.className = "doc-stats";
+      statsRow.innerHTML = `
+        <span>Pages: <b>${doc.stats.pages}</b></span>
+        <span>Words: <b>${doc.stats.words}</b></span>
+        <span>Chunks: <b>${doc.stats.chunks}</b></span>
+        <span>Avg Chunk: <b>${doc.stats.avg_chunk_words}</b> words</span>
+        <span>Embed Dim: <b>${doc.stats.embedding_dim}</b></span>
+      `;
+      card.appendChild(statsRow);
+    }
+
+    documentListEl.appendChild(card);
   }
 }
 
