@@ -70,7 +70,7 @@ async def query_documents(request:QueryRequest):
         docs=docs_for_search,
         mode=request.mode,
     )
-    return ('answer':answer,'sources',sources)
+    return {'answer':answer,'sources':sources}
 
 @app.get("/summary/{stem}")
 async def get_summary(stem:str):
