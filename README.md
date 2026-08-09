@@ -1,5 +1,5 @@
 # InsightDock  
-![Python](https://img.shields.io/badge/Python-3.11-blue) ![Streamlit](https://img.shields.io/badge/Streamlit-App-red) ![NLP](https://img.shields.io/badge/NLP-RAG-success) ![License](https://img.shields.io/badge/License-MIT-green)
+![Python](https://img.shields.io/badge/Python-3.11-blue) ![FastAPI](https://img.shields.io/badge/FastAPI-App-009688) ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED) ![NLP](https://img.shields.io/badge/NLP-RAG-success) ![License](https://img.shields.io/badge/License-MIT-green)
 
 An end-to-end Retrieval-Augmented Generation (RAG) application that allows users to upload PDF documents, build semantic vector indexes, and interact with them using natural language.
 
@@ -30,9 +30,10 @@ The application combines Natural Language Processing (NLP), semantic search, vec
 * Executive Summary generation, per document
 * Key Insights extraction, per document
 * Source attribution with filename and page references
-* Interactive web interface (FastAPI + vanilla JS)
+* Interactive web interface (FastAPI + vanilla JS), with in-session question history
 * Cached document processing
 * Document statistics dashboard
+* Dockerized for consistent, reproducible deployment
 ---
 ---
 ## Screenshots
@@ -71,7 +72,8 @@ The application combines Natural Language Processing (NLP), semantic search, vec
 - Stores vector representations using FAISS for efficient similarity search.
 - Generates grounded answers with page-level source attribution.
 - Includes automated executive summaries and document key insights.
-- Interactive web interface (FastAPI + vanilla JS) with document statistics and cached processing.
+- Interactive web interface (FastAPI + vanilla JS) with document statistics, cached processing, and in-session question history.
+- Packaged with Docker for consistent deployment across environments.
 
 ---
 
@@ -90,7 +92,7 @@ Retrieval runs in one of two modes:
 
 **Known limitation:** answer confidence scoring is currently only shown in semantic mode, since BM25-selected sources don't have a FAISS distance to score against.
 ---
----
+
 
 ## API
 
@@ -108,11 +110,29 @@ InsightDock is served as a FastAPI application with a REST API and a vanilla JS 
 Interactive API docs are auto-generated at `/docs`.
 ---
 
+
+## Docker
+
+The application is packaged with Docker for consistent deployment.
+
+**Build the image:**
+```bash
+docker build -t insightdock .
+```
+
+**Run the container:**
+```bash
+docker run -p 8000:8000 --env-file .env insightdock
+```
+
+Then open `http://localhost:8000` in your browser. The embedding model is pre-downloaded at build time, so there's no cold-start delay on first request.
+---
 ## Tech Stack
 
 * Python
 * FastAPI
 * Uvicorn
+* Docker
 * Vanilla JavaScript, HTML, CSS (frontend)
 * Google Gemini 2.5 Flash
 * Sentence Transformers
@@ -214,6 +234,11 @@ uvicorn main:app --reload
 
 Then open `http://127.0.0.1:8000` in your browser.
 
+**Or, run with Docker instead** (no local Python environment needed):
+```bash
+docker build -t insightdock .
+docker run -p 8000:8000 --env-file .env insightdock
+```
 ---
 
 ## Example Workflow
