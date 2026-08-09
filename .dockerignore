@@ -1,0 +1,14 @@
+data/reports/*.pdf
+data/processed/*.txt
+data/processed/*_chunks.json
+data/processed/documents.json
+data/embeddings/*.npy
+models/*.index
+
+.git/
+.gitignore
+.vscode/
+.env
+__pycache__/
+*.pyc
+assets/*.mp4
