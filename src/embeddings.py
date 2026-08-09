@@ -9,7 +9,7 @@ def generate_embeddings(input_json, output_npy):
         texts=[]
         chunks=json.load(f)
         texts = [chunk["text"] for chunk in chunks]
-        model=get_model
+        model=get_model()
         embeddings=model.encode(texts,convert_to_numpy=True)
         
         print(type(embeddings))

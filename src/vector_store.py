@@ -36,7 +36,7 @@ def search(query,index_path,chunk_json_path,k=3):
 )
 
     
-    query_embedding = get_model.encode(
+    query_embedding = get_model().encode(
         query,
         convert_to_numpy=True
     ).reshape(1, -1)
