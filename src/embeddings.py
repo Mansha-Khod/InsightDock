@@ -1,6 +1,6 @@
 import json
 import numpy as np
-from src.model_loader import sentence_transformer_model
+from src.model_loader import get_model
 from config.config import EMBEDDINGS_DIR
 from config.config import PROCESSED_DIR
 
@@ -9,7 +9,7 @@ def generate_embeddings(input_json, output_npy):
         texts=[]
         chunks=json.load(f)
         texts = [chunk["text"] for chunk in chunks]
-        model=sentence_transformer_model
+        model=get_model
         embeddings=model.encode(texts,convert_to_numpy=True)
         
         print(type(embeddings))

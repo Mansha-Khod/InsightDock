@@ -1,7 +1,7 @@
 import faiss
 import numpy as np
 import json
-from src.model_loader import sentence_transformer_model
+from src.model_loader import get_model
 from rank_bm25 import BM25Okapi
 from config.config import EMBEDDINGS_DIR
 from config.config import MODELS_DIR
@@ -36,7 +36,7 @@ def search(query,index_path,chunk_json_path,k=3):
 )
 
     
-    query_embedding = sentence_transformer_model.encode(
+    query_embedding = get_model.encode(
         query,
         convert_to_numpy=True
     ).reshape(1, -1)
