@@ -13,7 +13,7 @@ The application combines Natural Language Processing (NLP), semantic search, vec
 ## Demo
 
  Watch the application in action:
-<video src="https://github.com/user-attachments/assets/63a7e249-d4f9-4c9a-b85c-fac3044489a2" width="100%" controls autoplay loop muted playsinline></video>
+<video src="https://github.com/user-attachments/assets/cb639d89-0853-4e9e-b73f-f393fb11355a" width="100%" controls autoplay loop muted playsinline></video>
 
 
 ---
@@ -49,19 +49,20 @@ The application combines Natural Language Processing (NLP), semantic search, vec
 
 ### Question Answering
 
-![QA](assets/question.jpeg)
+![QA](assets/question.png)
+![QA](assets/question_2.png)
 
 ---
 
 ### Executive Summary
 
-![Summary](assets/executive_summary.jpeg)
+![Summary](assets/executive_summary.png)
 
 ---
 
 ### Key Insights
 
-![Insights](assets/key_insights.jpeg)
+![Insights](assets/key_insights.png)
 
 ---
 
