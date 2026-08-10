@@ -7,7 +7,7 @@ The application combines Natural Language Processing (NLP), semantic search, vec
 
 ### Live Demo
 
-**Application:** https://insightdock.streamlit.app/
+**Application:** https://insightdock-8d82.onrender.com/
 
 ---
 ## Demo
