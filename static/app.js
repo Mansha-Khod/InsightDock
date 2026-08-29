@@ -29,7 +29,7 @@ document.getElementById("fileInput").addEventListener("change", (e) => {
     fileSlotTextEl.textContent = file.name;
     fileSlotEl.classList.add("has-file");
   } else {
-    fileSlotTextEl.textContent = "Choose a PDF file…";
+    fileSlotTextEl.textContent = "Choose a PDF\u2026";
     fileSlotEl.classList.remove("has-file");
   }
 });
@@ -53,10 +53,10 @@ async function loadDocuments() {
 
 function renderDocumentList() {
   const stems = Object.keys(knownDocs);
-  docCountEl.textContent = `${stems.length} document${stems.length === 1 ? "" : "s"} on file`;
+  docCountEl.textContent = `${stems.length} document${stems.length === 1 ? "" : "s"} loaded`;
 
   if (!stems.length) {
-    documentListEl.innerHTML = '<p class="empty-note">No documents processed yet. Add one above to begin.</p>';
+    documentListEl.innerHTML = '<p class="empty-note">Nothing loaded yet. Add a PDF above to start asking questions.</p>';
     return;
   }
 
@@ -65,10 +65,10 @@ function renderDocumentList() {
     const doc = knownDocs[stem];
 
     const card = document.createElement("div");
-    card.className = "doc-card";
+    card.className = "doc-item";
 
     const head = document.createElement("label");
-    head.className = "doc-card-head";
+    head.className = "doc-item-head";
 
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
@@ -80,6 +80,7 @@ function renderDocumentList() {
     const name = document.createElement("span");
     name.className = "doc-name";
     name.textContent = doc.display_name;
+    name.title = doc.display_name;
 
     head.appendChild(checkbox);
     head.appendChild(name);
@@ -93,7 +94,6 @@ function renderDocumentList() {
         <span>Words <b>${doc.stats.words}</b></span>
         <span>Chunks <b>${doc.stats.chunks}</b></span>
         <span>Avg chunk <b>${doc.stats.avg_chunk_words}</b>w</span>
-        <span>Embed dim <b>${doc.stats.embedding_dim}</b></span>
       `;
       card.appendChild(stats);
     }
@@ -139,24 +139,24 @@ document.getElementById("uploadBtn").addEventListener("click", async () => {
   formData.append("file", fileInput.files[0]);
 
   uploadStatusEl.classList.remove("error");
-  uploadStatusEl.textContent = "Processing…";
+  uploadStatusEl.textContent = "Processing\u2026";
 
   try {
     const res = await fetch("/upload", { method: "POST", body: formData });
     const data = await res.json();
 
     if (data.stem) {
-      uploadStatusEl.textContent = `${data.filename} processed successfully.`;
+      uploadStatusEl.textContent = `${data.filename} added.`;
       fileInput.value = "";
-      fileSlotTextEl.textContent = "Choose a PDF file…";
+      fileSlotTextEl.textContent = "Choose a PDF\u2026";
       fileSlotEl.classList.remove("has-file");
       await loadDocuments();
     } else {
-      uploadStatusEl.textContent = "Upload failed.";
+      uploadStatusEl.textContent = "Upload failed. Check it's a valid PDF and try again.";
       uploadStatusEl.classList.add("error");
     }
   } catch (err) {
-    uploadStatusEl.textContent = "Upload failed — check the server is running.";
+    uploadStatusEl.textContent = "Upload failed \u2014 check the server is running.";
     uploadStatusEl.classList.add("error");
   }
 });
@@ -168,14 +168,14 @@ summaryBtnEl.addEventListener("click", async () => {
   if (!stem) return;
 
   summaryOutputEl.hidden = false;
-  summaryTextEl.textContent = "Generating summary…";
+  summaryTextEl.textContent = "Generating summary\u2026";
 
   try {
     const res = await fetch(`/summary/${encodeURIComponent(stem)}`);
     const data = await res.json();
     summaryTextEl.textContent = data.summary || data.error || "No summary returned.";
   } catch (err) {
-    summaryTextEl.textContent = "Could not generate summary — check the server is running.";
+    summaryTextEl.textContent = "Could not generate a summary \u2014 check the server is running.";
   }
 });
 
@@ -184,7 +184,7 @@ insightsBtnEl.addEventListener("click", async () => {
   if (!stem) return;
 
   insightsOutputEl.hidden = false;
-  insightsListEl.innerHTML = "<li>Extracting key insights…</li>";
+  insightsListEl.innerHTML = "<li>Extracting key insights\u2026</li>";
 
   try {
     const res = await fetch(`/insights/${encodeURIComponent(stem)}`);
@@ -213,7 +213,7 @@ insightsBtnEl.addEventListener("click", async () => {
         });
     }
   } catch (err) {
-    insightsListEl.innerHTML = "<li>Could not extract key insights — check the server is running.</li>";
+    insightsListEl.innerHTML = "<li>Could not extract key insights \u2014 check the server is running.</li>";
   }
 });
 
@@ -231,6 +231,7 @@ function renderHistory() {
   questionHistory.slice(-10).reverse().forEach((q) => {
     const li = document.createElement("li");
     li.textContent = q;
+    li.title = q;
     li.addEventListener("click", () => {
       document.getElementById("questionInput").value = q;
       askQuestion(q);
@@ -244,7 +245,7 @@ async function askQuestion(question) {
   const selectedStems = Object.keys(knownDocs).filter((s) => knownDocs[s].selected);
 
   findingsSection.hidden = false;
-  answerBoxEl.textContent = "Searching…";
+  answerBoxEl.textContent = "Searching\u2026";
   sourcesHeaderEl.hidden = true;
   sourcesBoxEl.innerHTML = "";
 
@@ -265,22 +266,21 @@ async function askQuestion(question) {
     const sources = data.sources || [];
     if (sources.length) {
       sourcesHeaderEl.hidden = false;
-      sources.forEach((src, i) => {
-        const stub = document.createElement("div");
-        stub.className = "stub";
-        stub.innerHTML = `
-          <div class="stub-num">${String(i + 1).padStart(2, "0")}</div>
-          <div class="stub-head">
-            <span class="stub-file">${src.filename || "—"}</span>
-            <span class="stub-pages">pp. ${src.pages || "—"}</span>
+      sources.forEach((src) => {
+        const card = document.createElement("div");
+        card.className = "source-card";
+        card.innerHTML = `
+          <div class="source-head">
+            <span class="source-file">${src.filename || "\u2014"}</span>
+            <span class="source-pages">pp. ${src.pages || "\u2014"}</span>
           </div>
-          <div class="stub-preview">${src.preview || ""}</div>
+          <div class="source-preview">${src.preview || ""}</div>
         `;
-        sourcesBoxEl.appendChild(stub);
+        sourcesBoxEl.appendChild(card);
       });
     }
   } catch (err) {
-    answerBoxEl.textContent = "Something went wrong — check the server is running.";
+    answerBoxEl.textContent = "Something went wrong \u2014 check the server is running.";
   }
 }
 
